@@ -29,20 +29,16 @@ public class AppointmentController {
     @GetMapping("/appointments")
     public ResponseEntity<List<Appointment>> getAllAppointments(){
         List<Appointment> appointments = new ArrayList<>();
-
         appointmentRepository.findAll().forEach(appointments::add);
-
         if (appointments.isEmpty()){
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
-
         return new ResponseEntity<>(appointments, HttpStatus.OK);
     }
 
     @GetMapping("/appointments/{id}")
     public ResponseEntity<Appointment> getAppointmentById(@PathVariable("id") long id){
         Optional<Appointment> appointment = appointmentRepository.findById(id);
-
         if (appointment.isPresent()){
             return new ResponseEntity<>(appointment.get(),HttpStatus.OK);
         }else {
