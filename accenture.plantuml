@@ -1,0 +1,131 @@
+@startuml
+
+!theme plain
+top to bottom direction
+skinparam linetype ortho
+
+class Appointment {
+  - patient: Patient
+  - startsAt: LocalDateTime
+  - finishesAt: LocalDateTime
+  - id: long
+  - room: Room
+  - doctor: Doctor
+  + getFinishesAt(): LocalDateTime
+  + overlaps(Appointment): boolean
+  + getRoom(): Room
+  + getDoctor(): Doctor
+  + setStartsAt(LocalDateTime): void
+  + getId(): long
+  + setId(long): void
+  + getPatient(): Patient
+  + setDoctor(Doctor): void
+  + setPatient(Patient): void
+  + setRoom(Room): void
+  + getStartsAt(): LocalDateTime
+  + setFinishesAt(LocalDateTime): void
+}
+class AppointmentController {
+  ~ appointmentRepository: AppointmentRepository
+  + createAppointment(Appointment): ResponseEntity<List<Appointment>>
+  + deleteAllAppointments(): ResponseEntity<HttpStatus>
+  + getAllAppointments(): ResponseEntity<List<Appointment>>
+  + getAppointmentById(long): ResponseEntity<Appointment>
+  + deleteAppointment(long): ResponseEntity<HttpStatus>
+}
+interface AppointmentRepository << interface >> {
+  + save(Appointment): Appointment
+  + delete(Appointment): void
+  + findAll(): List<Appointment>
+}
+class Doctor {
+  - id: long
+  + getId(): long
+  + setId(long): void
+}
+class DoctorController {
+  ~ doctorRepository: DoctorRepository
+  + getAllDoctors(): ResponseEntity<List<Doctor>>
+  + getDoctorById(long): ResponseEntity<Doctor>
+  + createDoctor(Doctor): ResponseEntity<Doctor>
+  + deleteAllDoctors(): ResponseEntity<HttpStatus>
+  + deleteDoctor(long): ResponseEntity<HttpStatus>
+}
+interface DoctorRepository << interface >> {
+  + delete(Doctor): void
+  + save(Doctor): Doctor
+  + findAll(): List<Doctor>
+}
+class Patient {
+  - id: long
+  + getId(): long
+  + setId(long): void
+}
+class PatientController {
+  ~ patientRepository: PatientRepository
+  + getAllPatients(): ResponseEntity<List<Patient>>
+  + getPatientById(long): ResponseEntity<Patient>
+  + deletePatient(long): ResponseEntity<HttpStatus>
+  + createPatient(Patient): ResponseEntity<Patient>
+  + deleteAllPatients(): ResponseEntity<HttpStatus>
+}
+interface PatientRepository << interface >> {
+  + delete(Patient): void
+  + findAll(): List<Patient>
+  + save(Patient): Patient
+}
+class Person {
+  - firstName: String
+  - lastName: String
+  - age: int
+  - email: String
+  + getAge(): int
+  + setEmail(String): void
+  + setFirstName(String): void
+  + getEmail(): String
+  + getFirstName(): String
+  + setAge(int): void
+  + getLastName(): String
+  + setLastName(String): void
+}
+class Room {
+  - roomName: String
+  + getRoomName(): String
+}
+class RoomController {
+  ~ roomRepository: RoomRepository
+  + getAllRooms(): ResponseEntity<List<Room>>
+  + createRoom(Room): ResponseEntity<Room>
+  + deleteAllRooms(): ResponseEntity<HttpStatus>
+  + deleteRoom(String): ResponseEntity<HttpStatus>
+  + getRoomByRoomName(String): ResponseEntity<Room>
+}
+interface RoomRepository << interface >> {
+  + delete(Room): void
+  + findAll(): List<Room>
+  + findByRoomName(String): Optional<Room>
+  + deleteByRoomName(String): void
+  + save(Room): Room
+}
+
+Appointment            -[#595959,dashed]->  Appointment           
+Appointment           "1" *-[#595959,plain]-> "doctor\n1" Doctor                
+Appointment           "1" *-[#595959,plain]-> "patient\n1" Patient               
+Appointment           "1" *-[#595959,plain]-> "room\n1" Room                  
+AppointmentController  -[#595959,dashed]->  Appointment           
+AppointmentController "1" *-[#595959,plain]-> "appointmentRepository\n1" AppointmentRepository 
+AppointmentRepository  -[#595959,dashed]->  Appointment           
+Doctor                 -[#000082,plain]-^  Person                
+DoctorController       -[#595959,dashed]->  Doctor                : "«create»"
+DoctorController      "1" *-[#595959,plain]-> "doctorRepository\n1" DoctorRepository      
+DoctorController       -[#595959,dashed]->  Person                
+DoctorRepository       -[#595959,dashed]->  Doctor                
+Patient                -[#000082,plain]-^  Person                
+PatientController      -[#595959,dashed]->  Patient               : "«create»"
+PatientController     "1" *-[#595959,plain]-> "patientRepository\n1" PatientRepository     
+PatientController      -[#595959,dashed]->  Person                
+PatientRepository      -[#595959,dashed]->  Patient               
+RoomController         -[#595959,dashed]->  Room                  : "«create»"
+RoomController        "1" *-[#595959,plain]-> "roomRepository\n1" RoomRepository        
+RoomRepository         -[#595959,dashed]->  Room                  
+@enduml

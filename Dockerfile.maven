@@ -1,0 +1,13 @@
+FROM maven:3.9.6-eclipse-temurin-8 as prebuild
+WORKDIR /app
+COPY . .
+RUN mvn install -DskipTests
+RUN mvn test
+
+FROM prebuild as build
+RUN mvn clean package -DskipTests-
+
+FROM eclipse-temurin:8-jre-jammy as deployment
+COPY --from=build /app/target/*.war /app.war
+EXPOSE 8080
+CMD ["java", "-jar", "/app.war"]
