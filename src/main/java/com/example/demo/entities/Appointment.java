@@ -15,6 +15,7 @@ public class Appointment {
     @GeneratedValue(strategy=GenerationType.AUTO)
     private long id;
 
+
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "patient_id", referencedColumnName = "id")
     private Patient patient;
