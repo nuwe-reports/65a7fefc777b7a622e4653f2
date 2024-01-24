@@ -29,20 +29,16 @@ public class AppointmentController {
     @GetMapping("/appointments")
     public ResponseEntity<List<Appointment>> getAllAppointments(){
         List<Appointment> appointments = new ArrayList<>();
-
         appointmentRepository.findAll().forEach(appointments::add);
-
         if (appointments.isEmpty()){
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
-
         return new ResponseEntity<>(appointments, HttpStatus.OK);
     }
 
     @GetMapping("/appointments/{id}")
     public ResponseEntity<Appointment> getAppointmentById(@PathVariable("id") long id){
         Optional<Appointment> appointment = appointmentRepository.findById(id);
-
         if (appointment.isPresent()){
             return new ResponseEntity<>(appointment.get(),HttpStatus.OK);
         }else {
@@ -51,14 +47,26 @@ public class AppointmentController {
     }
 
     @PostMapping("/appointment")
-    public ResponseEntity<List<Appointment>> createAppointment(@RequestBody Appointment appointment){
-        /** TODO 
-         * Implement this function, which acts as the POST /api/appointment endpoint.
-         * Make sure to check out the whole project. Specially the Appointment.java class
-         */
-        return new ResponseEntity<>(HttpStatus.I_AM_A_TEAPOT);
-    }
+    public ResponseEntity<List<Appointment>> createAppointment(
+            @RequestBody Appointment appointment){
+        boolean startSameFinish = appointment.getStartsAt().isEqual(appointment.getFinishesAt());
+        boolean startsAfterFinish = appointment.getStartsAt().isAfter(appointment.getFinishesAt());
+        if (startSameFinish || startsAfterFinish) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);}
 
+        List<Appointment> savedAppointments = this.appointmentRepository.findAll();
+        for (Appointment ap : savedAppointments){
+            boolean overlaped = appointment.overlaps(ap);
+            if (overlaped) {
+                return new ResponseEntity<>(HttpStatus.NOT_ACCEPTABLE);
+            }
+        }
+
+        Appointment savedAppointment = this.appointmentRepository.save(appointment);
+        List<Appointment> appointmentList = new ArrayList<>();
+        appointmentList.add(savedAppointment);
+        return new ResponseEntity<>(appointmentList, HttpStatus.OK);
+    }
 
     @DeleteMapping("/appointments/{id}")
     public ResponseEntity<HttpStatus> deleteAppointment(@PathVariable("id") long id){
